@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Campus Data</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        form { max-width: 400px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        label { display: block; margin-bottom: 10px; }
+        input, select { width: 100%; padding: 8px; margin-bottom: 15px; }
+        button { width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; cursor: pointer; }
+        button:hover { background: #45a049; }
+        #message { margin-top: 20px; text-align: center; color: green; }
+    </style>
+</head>
+<body>
+    <h2>Upload Campus Data</h2>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        
+        <label for="academic_year">Academic Year:</label>
+        <select id="academic_year" name="academic_year" required>
+            <option value="2025-26" selected>2025-26</option>
+            <option value="2024-25">2024-25</option>
+            <option value="2023-24">2023-24</option>
+            <!-- Add more years as needed -->
+        </select>
+        
+        <label for="date">Date (YYYY-MM-DD):</label>
+        <input type="date" id="date" name="date" required>
+        
+        <label for="file">Excel File (.xlsx):</label>
+        <input type="file" id="file" name="file" accept=".xlsx" required>
+        
+        <button type="submit">Upload Data</button>
+    </form>
+    <div id="message"></div>
+    
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            let message = '';
+            let color = 'red';
+
+            try {
+                // Try to parse JSON response
+                const result = await response.json();
+                message = result.message || 'Unknown response';
+                color = response.ok ? 'green' : 'red';
+            } catch {
+                // If not JSON, fallback to text
+                message = response.ok ? 'Data uploaded successfully!' : 'Error uploading data.';
+                color = response.ok ? 'green' : 'red';
+            }
+
+            document.getElementById('message').innerText = message;
+            document.getElementById('message').style.color = color;
+
+            // If upload was successful, reset the form
+            if (response.ok) {
+                form.reset();
+            }
+        });
+    </script>
+</body>
+</html>
